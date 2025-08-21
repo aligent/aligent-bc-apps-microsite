@@ -1,0 +1,20 @@
+services:
+  base:
+    build: .
+    user: ${USERID} # Avoid running as root, it creates un-deletable files
+    command: sh -c "bundle install && bundle exec jekyll serve --host 0.0.0.0 --livereload --force_polling --drafts"
+    ports:
+      - "4000:4000" # Jekyll server port
+      - "35729:35729" # Jekyll livereload port
+    volumes:
+      - .:/srv/jekyll
+    environment:
+      - JEKYLL_ENV=development
+      - BUNDLE_PATH=/srv/jekyll/vendor/bundle
+    stdin_open: true
+    tty: true
+  cli: # Service for running one-off CLI commands
+    extends: base
+    user: ${USERID} # Avoid running as root, it creates un-deletable files
+    command: /bin/sh
+    profiles: ["cli"] # Only runs when explicitly called
